@@ -1,78 +1,283 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cố Vấn Văn Hóa - covanhoa.vn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Youku Private - Xem Phim Đỉnh Cao</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        youkuBlue: '#008eff',
+                        youkuDark: '#121419',
+                        youkuCard: '#1a1d24',
+                        youkuHover: '#252932'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #121419; }
+        ::-webkit-scrollbar-thumb { background: #2f3542; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #008eff; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
-    <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 top-0 left-0 border-b border-slate-100 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <span class="text-2xl font-bold bg-gradient-to-r from-amber-700 to-amber-900 bg-clip-text text-transparent">
-                    COVANHOA.VN
-                </span>
-                <div class="hidden md:flex space-x-8 font-medium text-slate-600">
-                    <a href="#about" class="hover:text-amber-800 transition">Giới Thiệu</a>
-                    <a href="#services" class="hover:text-amber-800 transition">Dịch Vụ</a>
-                    <a href="#contact" class="hover:text-amber-800 transition">Liên Hệ</a>
+<body class="bg-youkuDark text-white font-sans antialiased min-h-screen flex flex-col selection:bg-youkuBlue selection:text-white">
+
+    <!-- HEADER / NAVBAR YOUKU STYLE -->
+    <header class="sticky top-0 z-50 bg-youkuDark/95 backdrop-blur-md border-b border-neutral-800/80 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-6">
+                <a href="#" class="flex items-center space-x-2 group">
+                    <!-- Logo Youku đặc trưng: Chữ 优酷 / YOUKU màu xanh dương -->
+                    <span class="bg-youkuBlue text-white font-black text-lg px-2.5 py-1 rounded-lg tracking-wider shadow-lg shadow-blue-500/30 group-hover:scale-105 transition">YOUKU</span>
+                    <span class="text-xs uppercase tracking-widest text-neutral-400 font-bold hidden sm:inline">VIP Private</span>
+                </a>
+                <nav class="hidden md:flex space-x-1 text-sm font-medium">
+                    <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-lg transition text-white bg-youkuCard border border-neutral-700" data-cat="all">Trang Chủ</button>
+                    <button onclick="filterCategory('Mới cập nhật')" class="nav-btn px-3 py-2 rounded-lg transition text-neutral-300 hover:text-white hover:bg-youkuCard" data-cat="Mới cập nhật">Mới Cập Nhật</button>
+                    <button onclick="filterCategory('Phim Lẻ')" class="nav-btn px-3 py-2 rounded-lg transition text-neutral-300 hover:text-white hover:bg-youkuCard" data-cat="Phim Lẻ">Phim Lẻ</button>
+                    <button onclick="filterCategory('Phim Bộ')" class="nav-btn px-3 py-2 rounded-lg transition text-neutral-300 hover:text-white hover:bg-youkuCard" data-cat="Phim Bộ">Phim Bộ</button>
+                    <button onclick="filterCategory('Trung Quốc')" class="nav-btn px-3 py-2 rounded-lg transition text-neutral-300 hover:text-white hover:bg-youkuCard" data-cat="Trung Quốc">Cổ Trang / C-Drama</button>
+                    <button onclick="filterCategory('Anime')" class="nav-btn px-3 py-2 rounded-lg transition text-neutral-300 hover:text-white hover:bg-youkuCard" data-cat="Anime">Hoạt Hình</button>
+                </nav>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <div class="relative">
+                    <input type="text" id="searchInput" oninput="handleSearch(this.value)" placeholder="Tìm kiếm phim, diễn viên..." class="bg-neutral-900 border border-neutral-700 text-sm rounded-full px-4 py-1.5 pl-9 focus:outline-none focus:border-youkuBlue w-32 sm:w-60 transition text-white">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-neutral-400 text-xs"></i>
+                </div>
+                <!-- Nút Admin Youku Style -->
+                <button type="button" onclick="openAdminModalDirect()" class="bg-youkuBlue hover:bg-blue-600 text-white text-xs font-bold px-3.5 py-2 rounded-lg transition shadow-md flex items-center space-x-1.5 active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-crown text-[10px]"></i>
+                    <span id="adminBtnText">ADMIN</span>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Category Bar -->
+        <div class="md:hidden flex overflow-x-auto px-4 py-2 space-x-2 border-t border-neutral-800/60 text-xs scrollbar-none">
+            <button onclick="filterCategory('all')" class="nav-btn-m px-3 py-1.5 rounded-lg bg-youkuCard text-white whitespace-nowrap font-medium border border-neutral-700" data-cat="all">Trang Chủ</button>
+            <button onclick="filterCategory('Mới cập nhật')" class="nav-btn-m px-3 py-1.5 rounded-lg bg-neutral-900 text-neutral-300 whitespace-nowrap font-medium" data-cat="Mới cập nhật">Mới</button>
+            <button onclick="filterCategory('Phim Lẻ')" class="nav-btn-m px-3 py-1.5 rounded-lg bg-neutral-900 text-neutral-300 whitespace-nowrap font-medium" data-cat="Phim Lẻ">Phim Lẻ</button>
+            <button onclick="filterCategory('Phim Bộ')" class="nav-btn-m px-3 py-1.5 rounded-lg bg-neutral-900 text-neutral-300 whitespace-nowrap font-medium" data-cat="Phim Bộ">Phim Bộ</button>
+            <button onclick="filterCategory('Trung Quốc')" class="nav-btn-m px-3 py-1.5 rounded-lg bg-neutral-900 text-neutral-300 whitespace-nowrap font-medium" data-cat="Trung Quốc">C-Drama</button>
+            <button onclick="filterCategory('Anime')" class="nav-btn-m px-3 py-1.5 rounded-lg bg-neutral-900 text-neutral-300 whitespace-nowrap font-medium" data-cat="Anime">Anime</button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-6 w-full space-y-8">
+        
+        <!-- HERO BANNER YOUKU STYLE -->
+        <div id="heroSection" class="relative rounded-2xl overflow-hidden shadow-2xl bg-youkuCard min-h-[380px] sm:min-h-[440px] flex items-end border border-neutral-800/50">
+            <div id="heroBg" class="absolute inset-0 bg-cover bg-center filter brightness-[0.5] scale-105 transition duration-700" style="background-image: url('https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1200&q=80')"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-youkuDark via-youkuDark/40 to-transparent"></div>
+            <div class="relative p-6 sm:p-10 max-w-2xl space-y-3">
+                <span id="heroBadge" class="bg-youkuBlue text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow">Độc Quyền YOUKU</span>
+                <h1 id="heroTitle" class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white drop-shadow-lg">Chào Mừng Đến Kho Phim Youku</h1>
+                <p id="heroDesc" class="text-xs sm:text-sm text-neutral-300 line-clamp-2 leading-relaxed">Thưởng thức trọn bộ các thước phim bom tấn đỉnh cao chất lượng cao. Bấm Quản trị Admin để thêm bộ phim yêu thích của bạn!</p>
+                <div class="flex items-center space-x-3 pt-2">
+                    <button onclick="playFirstMovie()" class="bg-youkuBlue hover:bg-blue-600 text-white font-bold px-5 py-2.5 rounded-xl flex items-center space-x-2 text-sm transition shadow-lg shadow-blue-500/30 active:scale-95">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Xem Ngay</span>
+                    </button>
                 </div>
             </div>
         </div>
-    </nav>
 
-    <section class="pt-32 pb-20 bg-gradient-to-b from-amber-50/50 to-slate-50 text-center px-4">
-        <span class="text-amber-800 bg-amber-100 text-xs font-bold px-3 py-1.5 rounded-full uppercase">
-            Đồng hành & Phát triển bền vững
-        </span>
-        <h1 class="mt-6 text-4xl font-extrabold text-slate-900 leading-tight">
-            Nâng Tầm Giá Trị <br/>
-            <span class="text-amber-800">Văn Hóa & Tổ Chức</span>
-        </h1>
-        <p class="mt-4 text-slate-600 max-w-md mx-auto">
-            Chuyên tư vấn, xây dựng chiến lược văn hóa doanh nghiệp và thương hiệu bền vững.
-        </p>
-        <div class="mt-8 flex justify-center gap-3">
-            <a href="#contact" class="bg-amber-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-900 transition">
-                Tư Vấn Ngay
-            </a>
-        </div>
-    </section>
+        <!-- MOVIE LIST SECTION -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between border-b border-neutral-800 pb-2">
+                <h2 class="text-lg sm:text-xl font-bold tracking-wide flex items-center space-x-2">
+                    <span class="w-1.5 h-5 bg-youkuBlue rounded-full"></span>
+                    <span id="categoryHeading">Danh Sách Phim Hot</span>
+                </h2>
+                <span id="movieCount" class="text-xs text-neutral-400 font-medium">0 phim</span>
+            </div>
 
-    <section id="about" class="py-12 bg-white px-4">
-        <div class="max-w-3xl mx-auto text-center">
-            <h2 class="text-2xl font-bold text-slate-900">Về covanhoa.vn</h2>
-            <p class="mt-3 text-slate-600">
-                Chúng tôi mang đến giải pháp tư vấn văn hóa toàn diện cho cá nhân và tổ chức.
-            </p>
-        </div>
-    </section>
+            <!-- Grid Phim -->
+            <div id="movieGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                <!-- Phim render tự động -->
+            </div>
+        </section>
+    </main>
 
-    <section id="contact" class="py-12 bg-slate-50 px-4">
-        <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h2 class="text-xl font-bold text-slate-900 text-center mb-4">Đăng Ký Tư Vấn</h2>
-            <form id="contactForm" class="space-y-4">
-                <input type="text" placeholder="Họ và tên" required class="w-full px-4 py-2.5 bg-slate-50 border rounded-lg outline-none">
-                <input type="tel" placeholder="Số điện thoại / Zalo" required class="w-full px-4 py-2.5 bg-slate-50 border rounded-lg outline-none">
-                <textarea placeholder="Nhu cầu tư vấn..." class="w-full px-4 py-2.5 bg-slate-50 border rounded-lg outline-none" rows="3"></textarea>
-                <button type="submit" class="w-full bg-amber-800 text-white py-3 rounded-lg font-semibold">Gửi Yêu Cầu</button>
-            </form>
-        </div>
-    </section>
-
-    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-sm">
-        © 2026 COVANHOA.VN
+    <!-- FOOTER -->
+    <footer class="border-t border-neutral-800/80 bg-youkuDark py-6 mt-12 text-center text-xs text-neutral-500">
+        <p>Youku Private Video Platform &copy; 2026. Powered by Admin.</p>
     </footer>
 
+    <!-- WATCH MODAL (Trình phát phim) -->
+    <div id="watchModal" class="fixed inset-0 z-50 bg-black/95 hidden flex flex-col justify-center items-center p-2 sm:p-6 backdrop-blur-md">
+        <div class="w-full max-w-5xl bg-youkuCard rounded-2xl overflow-hidden shadow-2xl border border-neutral-800 flex flex-col max-h-[92vh]">
+            <div class="flex items-center justify-between px-4 py-3.5 bg-neutral-900 border-b border-neutral-800">
+                <h3 id="modalTitle" class="font-bold text-sm sm:text-base text-white truncate">Tên Phim</h3>
+                <button onclick="closeWatchModal()" class="text-neutral-400 hover:text-white p-1.5 rounded-lg hover:bg-neutral-800 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="relative w-full aspect-video bg-black flex items-center justify-center">
+                <div id="playerContainer" class="w-full h-full"></div>
+            </div>
+            <div class="p-4 bg-neutral-900/60 space-y-1">
+                <p id="modalDesc" class="text-xs sm:text-sm text-neutral-300">Mô tả phim...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="adminLoginModal" class="fixed inset-0 z-50 bg-black/85 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-youkuCard w-full max-w-sm rounded-2xl p-6 border border-neutral-800 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-base text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-shield-halved text-youkuBlue"></i>
+                    <span>Xác Thực Quản Trị Viên</span>
+                </h3>
+                <button onclick="closeAdminLogin()" class="text-neutral-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-xs text-neutral-400">Nhập mật khẩu quản trị Youku (mặc định: <strong class="text-white">admin123</strong>).</p>
+            <input type="password" id="adminPasswordInput" placeholder="Mật khẩu Admin" class="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-youkuBlue">
+            <button onclick="verifyAdmin()" class="w-full bg-youkuBlue hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-lg shadow-blue-500/30 active:scale-95">Đăng Nhập</button>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD MODAL -->
+    <div id="adminDashboardModal" class="fixed inset-0 z-50 bg-black/95 hidden flex flex-col justify-center items-center p-2 sm:p-6 backdrop-blur-md">
+        <div class="w-full max-w-4xl bg-youkuCard rounded-2xl overflow-hidden shadow-2xl border border-neutral-800 flex flex-col max-h-[92vh]">
+            <div class="flex items-center justify-between px-6 py-4 bg-neutral-900 border-b border-neutral-800">
+                <h3 class="font-bold text-base text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders text-youkuBlue"></i>
+                    <span>Bảng Quản Trị Youku Dashboard</span>
+                </h3>
+                <button onclick="closeAdminDashboard()" class="text-neutral-400 hover:text-white p-1.5 rounded-lg hover:bg-neutral-800 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-4 sm:p-6 overflow-y-auto space-y-6 flex-grow">
+                <!-- Form Thêm / Sửa Phim -->
+                <div class="bg-neutral-900 p-4 sm:p-5 rounded-xl border border-neutral-800 space-y-4">
+                    <h4 id="formHeading" class="font-bold text-xs text-youkuBlue uppercase tracking-wider">Thêm Bộ Phim Mới</h4>
+                    <input type="hidden" id="editMovieId">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input type="text" id="movieTitle" placeholder="Tên bộ phim" class="bg-neutral-800 border border-neutral-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-youkuBlue">
+                        <select id="movieCategory" class="bg-neutral-800 border border-neutral-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-youkuBlue">
+                            <option value="Mới cập nhật">Mới cập nhật</option>
+                            <option value="Phim Lẻ">Phim Lẻ</option>
+                            <option value="Phim Bộ">Phim Bộ</option>
+                            <option value="Trung Quốc">Trung Quốc</option>
+                            <option value="Anime">Anime</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input type="text" id="moviePoster" placeholder="Link ảnh Poster (URL hình ảnh)" class="bg-neutral-800 border border-neutral-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-youkuBlue">
+                        <input type="text" id="movieVideoUrl" placeholder="Link Video (Youtube, Google Drive, MP4...)" class="bg-neutral-800 border border-neutral-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-youkuBlue">
+                    </div>
+                    <textarea id="movieDesc" placeholder="Mô tả nội dung phim..." rows="2" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-youkuBlue"></textarea>
+                    
+                    <div class="flex items-center space-x-3 pt-1">
+                        <button onclick="saveMovie()" class="bg-youkuBlue hover:bg-blue-600 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow active:scale-95">Lưu Phim</button>
+                        <button onclick="resetMovieForm()" class="bg-neutral-700 hover:bg-neutral-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition">Làm mới form</button>
+                    </div>
+                </div>
+
+                <!-- Đổi Mật khẩu Admin -->
+                <div class="bg-neutral-900 p-4 sm:p-5 rounded-xl border border-neutral-800 space-y-3">
+                    <h4 class="font-bold text-xs text-neutral-300 uppercase tracking-wider">Đổi Mật Khẩu Quản Trị</h4>
+                    <div class="flex items-center space-x-3 max-w-md">
+                        <input type="password" id="newAdminPass" placeholder="Mật khẩu mới" class="bg-neutral-800 border border-neutral-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-youkuBlue flex-grow">
+                        <button onclick="changePassword()" class="bg-neutral-700 hover:bg-neutral-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition whitespace-nowrap">Đổi Mật Khẩu</button>
+                    </div>
+                </div>
+
+                <!-- Danh sách quản lý phim -->
+                <div class="space-y-3">
+                    <h4 class="font-bold text-xs text-neutral-300 uppercase tracking-wider">Danh Sách Phim Quản Lý</h4>
+                    <div id="adminMovieList" class="space-y-2">
+                        <!-- Render list admin -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Cảm ơn bạn! Chúng tôi sẽ liên hệ lại sớm.');
-            this.reset();
+        let defaultMovies = [
+            {
+                id: 1,
+                title: "Trường Nguyệt Tẫn Minh (Mẫu Youku)",
+                category: "Trung Quốc",
+                poster: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=500&q=80",
+                videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                description: "Bom tấn cổ trang tiên hiệp độc quyền phát sóng với kỹ xảo và tạo hình tuyệt đẹp."
+            },
+            {
+                id: 2,
+                title: "Phàm Nhân Tu Tiên Truyện",
+                category: "Anime",
+                poster: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=500&q=80",
+                videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                description: "Hành trình tu tiên gian khổ nhưng vô cùng hấp dẫn của Hàn Lập."
+            }
+        ];
+
+        let movies = JSON.parse(localStorage.getItem('youku_movies')) || defaultMovies;
+        let adminPass = localStorage.getItem('youku_pass') || 'admin123';
+        let isAdminLoggedIn = false;
+        let currentFilter = 'all';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMovies();
+            if(window.location.hash === '#admin') {
+                setTimeout(() => openAdminModalDirect(), 300);
+            }
         });
-    </script>
-</body>
-  </html>
-  
+
+        function saveToStorage() {
+            localStorage.setItem('youku_movies', JSON.stringify(movies));
+        }
+
+        function renderMovies(filter = 'all', searchQuery = '') {
+            const grid = document.getElementById('movieGrid');
+            const countEl = document.getElementById('movieCount');
+            grid.innerHTML = '';
+
+            let filtered = movies.filter(m => {
+                let matchCat = (filter === 'all' || m.category === filter);
+                let matchSearch = m.title.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchCat && matchSearch;
+            });
+
+            countEl.innerText = filtered.length + ' phim';
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-neutral-500 text-sm">Chưa có bộ phim nào. Hãy vào Admin để thêm phim mới!</div>`;
+                return;
+            }
+
+            if(movies.length > 0 && filter === 'all' && !searchQuery) {
+                let hero = movies[0];
+                document.getElementById('heroTitle').innerText = hero.title;
+                document.getElementById('heroDesc').innerText = hero.description || 'Không có mô tả.';
+                document.getElementById('heroBg').style.backgroundImage = `url('${hero.poster}')`;
+            }
+
+            filtered.forEach(movie => {
+                let card = document.createElement('div');
+                card.className = 'group relative bg-youkuCard rounded-xl overflow-hidden shadow-lg border border-neutral-800 hover:border-youkuBlue transition duration-300 flex flex-col cursor-pointer';
+                card.onclick = () => openWatchModal(movie.id);
+
+                card.innerHTML = `
+                    <div class="relative aspect-[2/3] w-full overflow-hidden bg-neutral-900">
+                        <img src="${movie.poster}" alt="${movie.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=500&q=80'">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                            <span class="w-12 h-12 rounded-full bg-youkuBlue text-white flex items-center justify-center shadow-lg transform scale-75 group-hover:scale-100 transition duration-300">
+                                <i class="fa-solid fa-play ml-0.5"></
